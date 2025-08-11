@@ -1,7 +1,7 @@
 import { Text, View, StyleSheet } from 'react-native';
-import { multiply } from 'react-native-geolocation';
+import { getCurrentPosition } from 'react-native-geolocation';
 
-const result = multiply(3, 7);
+const result = getCurrentPosition();
 
 export default function App() {
   return (

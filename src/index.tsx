@@ -1,5 +1,5 @@
 import Geolocation from './NativeGeolocation';
 
-export function multiply(a: number, b: number): number {
-  return Geolocation.multiply(a, b);
+export function getCurrentPosition(): Promise<any> {
+  return Geolocation.getCurrentPosition();
 }
