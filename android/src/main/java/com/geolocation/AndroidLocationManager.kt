@@ -11,13 +11,15 @@ import com.facebook.react.bridge.Callback
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReadableMap
+import com.facebook.react.common.SystemClock
 
 @SuppressLint("MissingPermission")
 class AndroidLocationManager(context: ReactApplicationContext): BaseLocationManager(context) {
   private var watchProvider = null
 
-  override fun getCurrentLocationData(
+  override fun getCurrentLocation(
     options: ReadableMap,
+    promise: Promise
   ) {
     val locationOptions = LocationOptions.fromReactMap(options)
 
@@ -25,12 +27,23 @@ class AndroidLocationManager(context: ReactApplicationContext): BaseLocationMana
       val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
       val provider = getValidProvider(locationManager, locationOptions.highAccuracy)
 
-      if(provider == null) {
-        val error = PositionError.buildError(PositionErrorCode.POSITION_UNAVAILABLE, "No Location provider available.")
-
+      if (provider == null) {
+        throw GeolocationError.PermissionDenied("Provider Not Found")
       }
+
+      val location = locationManager.getLastKnownLocation(provider)
+
+      if (location != null && (SystemClock.currentTimeMillis() - location.getTime()) < locationOptions.maximumAge) {
+        promise.resolve(locationToMap(location));
+        return;
+      }
+
+      } catch (e: GeolocationError) {
+      promise.reject(e)
     } catch (e: SecurityException) {
-      throw e
+      promise.reject(GeolocationError.PermissionDenied())
+    } catch (e: Exception) {
+      promise.reject(GeolocationError.Unknown("getCurrentLocation Fail"))
     }
   }
 

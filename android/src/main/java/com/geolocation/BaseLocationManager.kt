@@ -64,11 +64,12 @@ abstract class BaseLocationManager(val context: ReactApplicationContext) {
   }
 
   protected fun emitError(code:Int, message: String) {
-    this.context.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java).emit("geolocationError",PositionError.buildError(code,message))
+    this.context.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java).emit("geolocationError",PositionError.buildError(
+      PositionErrorCode.fromInt(code),message))
   }
 
   // 추상 메서드들 - 서브클래스에서 구현 필수
-  abstract fun getCurrentLocationData(options: ReadableMap)
+  abstract fun getCurrentLocation(options: ReadableMap,promise: Promise)
   abstract fun startObserving(options: ReadableMap)
   abstract fun stopObserving()
 

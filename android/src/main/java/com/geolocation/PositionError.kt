@@ -5,6 +5,7 @@ import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.WritableMap
 
 enum class PositionErrorCode(val code: Int) {
+  UNKNOWN_ERROR(0),
   /**
    * 위치 정보 획득 권한이 거부된 경우
    * 페이지에 위치 정보에 대한 권한이 없어서 실패
@@ -25,7 +26,11 @@ enum class PositionErrorCode(val code: Int) {
    * 로직에서 non-null Activity가 필요하지만 getCurrentActivity()가 null을 반환
    * 이 에러로 사용자에게 Android 내부 오류를 알릴 수 있음
    */
-  ACTIVITY_NULL(4)
+  ACTIVITY_NULL(4);
+
+  companion object {
+    fun fromInt(code: Int): PositionErrorCode = values().firstOrNull { it.code == code } ?: UNKNOWN_ERROR
+  }
 }
 
 class PositionError {
@@ -41,9 +46,7 @@ class PositionError {
     fun buildError(code: PositionErrorCode, message: String): WritableMap {
       val error: WritableMap = Arguments.createMap().apply {
         putInt("code",code.code)
-        if(message != null) {
-          putString("message", message)
-        }
+        putString("message", message)
 
         putInt("PERMISSION_DENIED", PositionErrorCode.PERMISSION_DENIED.code)
         putInt("POSITION_UNAVAILABLE", PositionErrorCode.POSITION_UNAVAILABLE.code)
