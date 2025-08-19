@@ -151,7 +151,7 @@
   "codegenConfig": {
     "name": "GeolocationSpec",
     "type": "modules",
-    "jsSrcsDir": "src",
+    "jsSrcsDir": "./src/specs",
     "android": {
       "javaPackageName": "com.geolocation"
     }

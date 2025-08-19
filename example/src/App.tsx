@@ -1,14 +1,15 @@
-import { Text, View, StyleSheet } from 'react-native';
+import { useEffect } from 'react';
+import { View, StyleSheet } from 'react-native';
 import { getCurrentPosition } from 'react-native-geolocation';
 
-const result = getCurrentPosition();
-
 export default function App() {
-  return (
-    <View style={styles.container}>
-      <Text>Result: {result}</Text>
-    </View>
-  );
+  useEffect(() => {
+    getCurrentPosition().then((position) => {
+      console.log(position);
+    });
+  }, []);
+
+  return <View style={styles.container} />;
 }
 
 const styles = StyleSheet.create({

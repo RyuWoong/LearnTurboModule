@@ -1,5 +1,5 @@
-import Geolocation from './NativeGeolocation';
+import Geolocation, { type GeloocationData } from './specs/NativeGeolocation';
 
-export function getCurrentPosition(): Promise<any> {
+export function getCurrentPosition(): Promise<GeloocationData> {
   return Geolocation.getCurrentPosition();
 }
