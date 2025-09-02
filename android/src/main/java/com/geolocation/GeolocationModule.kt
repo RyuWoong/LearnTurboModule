@@ -6,6 +6,7 @@ import com.facebook.react.bridge.JavaOnlyArray
 import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.PromiseImpl
 import com.facebook.react.bridge.ReactApplicationContext
+import com.facebook.react.bridge.ReactContextBaseJavaModule
 import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.bridge.WritableNativeMap
 import com.facebook.react.module.annotations.ReactModule
@@ -14,7 +15,7 @@ import com.facebook.react.modules.permissions.PermissionsModule
 
 @ReactModule(name = GeolocationModule.NAME)
 class GeolocationModule(reactContext: ReactApplicationContext) :
-  NativeGeolocationSpec(reactContext) {
+  ReactContextBaseJavaModule(reactContext) {
     private lateinit var locationManager: BaseLocationManager  // LocationManager를 사용할지, Google Play Service를 사용할지 선택
     private lateinit var configuration: Configuration
 
@@ -22,7 +23,7 @@ class GeolocationModule(reactContext: ReactApplicationContext) :
     return NAME
   }
 
-  override fun setConfiguration(config: ReadableMap?) {
+  fun setConfiguration(config: ReadableMap?) {
     configuration = if(config == null) {
       Configuration("auto")
     } else {
@@ -30,7 +31,7 @@ class GeolocationModule(reactContext: ReactApplicationContext) :
     }
   }
 
-  override fun requestAuthorization(promise: Promise) {
+   fun requestAuthorization(promise: Promise) {
     val perms = getReactApplicationContext().getNativeModule<PermissionsModule?>(PermissionsModule::class.java)
     val permissions = arrayListOf<String>();
     permissions.add(Manifest.permission.ACCESS_FINE_LOCATION);
@@ -72,17 +73,36 @@ class GeolocationModule(reactContext: ReactApplicationContext) :
     return
   }
 
-  override fun getCurrentPosition(promise: Promise?) {
-    TODO("Not yet implemented")
+   fun getCurrentPosition(options: ReadableMap, promise: Promise) {
+     try {
+      locationManager.getCurrentLocation(options,promise)
+     } catch (e: SecurityException) {
+       locationPermissionMissing(e)
+     }
   }
 
-  override fun startObserving() {
-    TODO("Not yet implemented")
+   fun startObserving(options: ReadableMap) {
+     try {
+       locationManager.startObserving(options)
+
+     } catch (e: SecurityException) {
+       locationPermissionMissing(e)
+     }
   }
 
-  override fun stopObserving() {
-    TODO("Not yet implemented")
+   fun stopObserving() {
+     locationManager.stopObserving()
+
+   }
+
+  private fun locationPermissionMissing(e: SecurityException) {
+    val message = "Looks like the app doesn't have the permission to access location.\n" +
+      "Add the following line to your app's AndroidManifest.xml:\n" +
+      "<uses-permission android:name=\"android.permission.ACCESS_FINE_LOCATION\" />\n" +
+      e.message
+    GeolocationError.PermissionDenied(message)
   }
+
 
   companion object {
     const val NAME = "Geolocation"

@@ -4,7 +4,7 @@ import { getCurrentPosition } from 'react-native-geolocation';
 
 export default function App() {
   useEffect(() => {
-    getCurrentPosition().then((position) => {
+    getCurrentPosition({ enableHighAccuracy: true }).then((position) => {
       console.log(position);
     });
   }, []);

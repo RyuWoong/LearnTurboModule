@@ -6,6 +6,16 @@ export type GeolocationConfiguration = {
   enableBackgroundLocationUpdates?: boolean;
 };
 
+export type GeolocationOptions = {
+  timeout?: number;
+  maximumAge?: number;
+  enableHighAccuracy?: boolean;
+  distanceFilter?: number;
+  useSignificantChanges?: boolean;
+  interval?: number;
+  fastestInterval?: number;
+};
+
 export type GeloocationData = {
   coords: {
     latitude: number;
@@ -29,9 +39,9 @@ export interface Spec extends TurboModule {
 
   requestAuthorization(): Promise<string>;
 
-  getCurrentPosition(): Promise<GeloocationData>;
+  getCurrentPosition(options: GeolocationOptions): Promise<GeloocationData>;
 
-  startObserving(): void;
+  startObserving(options: GeolocationOptions): void;
 
   stopObserving(): void;
 }
