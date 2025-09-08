@@ -11,13 +11,16 @@ import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.bridge.WritableNativeMap
 import com.facebook.react.module.annotations.ReactModule
 import com.facebook.react.modules.permissions.PermissionsModule
+import com.google.android.gms.common.ConnectionResult
+import com.google.android.gms.common.GoogleApiAvailability
+import java.util.Objects
 
 
 @ReactModule(name = GeolocationModule.NAME)
-class GeolocationModule(reactContext: ReactApplicationContext) :
+class GeolocationModule(val reactContext: ReactApplicationContext) :
   ReactContextBaseJavaModule(reactContext) {
-    private lateinit var locationManager: BaseLocationManager  // LocationManager를 사용할지, Google Play Service를 사용할지 선택
-    private lateinit var configuration: Configuration
+    private var locationManager: BaseLocationManager = AndroidLocationManager(reactContext) // LocationManager를 사용할지, Google Play Service를 사용할지 선택
+    private var configuration: Configuration = Configuration("auto")
 
   override fun getName(): String {
     return NAME
@@ -28,6 +31,20 @@ class GeolocationModule(reactContext: ReactApplicationContext) :
       Configuration("auto")
     } else {
       Configuration.fromReactMap(config)
+    }
+    onConfingurationChange(configuration)
+  }
+
+  private fun onConfingurationChange(config: Configuration) {
+    if(Objects.equals(config.locationProvider, "android") && locationManager is PlayServicesLocationManager) {
+      locationManager = AndroidLocationManager(reactContext)
+    }
+
+    if(Objects.equals(config.locationProvider, "playServices") && locationManager is AndroidLocationManager) {
+      val availability = GoogleApiAvailability()
+      if(availability.isGooglePlayServicesAvailable(reactContext.applicationContext) == ConnectionResult.RESULT_SUCCESS.errorCode){
+        locationManager = PlayServicesLocationManager(reactContext)
+      }
     }
   }
 
@@ -84,7 +101,6 @@ class GeolocationModule(reactContext: ReactApplicationContext) :
    fun startObserving(options: ReadableMap) {
      try {
        locationManager.startObserving(options)
-
      } catch (e: SecurityException) {
        locationPermissionMissing(e)
      }
@@ -117,7 +133,6 @@ class GeolocationModule(reactContext: ReactApplicationContext) :
         } else {
           "auto"
         }
-
         return Configuration(locationProvider)
       }
     }
