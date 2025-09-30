@@ -1,5 +1,6 @@
 #import <GeolocationSpec/GeolocationSpec.h>
+#import <React/RCTEventEmitter.h>
 
-@interface Geolocation : NSObject <NativeGeolocationSpec>
+@interface Geolocation : RCTEventEmitter <NativeGeolocationSpec>
 
 @end
